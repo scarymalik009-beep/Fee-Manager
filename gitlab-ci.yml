@@ -1,0 +1,40 @@
+image: node:18
+
+stages:
+  - build
+  - package
+
+cache:
+  paths:
+    - node_modules/
+
+variables:
+  npm_config_build_from_source: "false"
+
+build_app:
+  stage: build
+  tags:
+    - windows
+  script:
+    - npm install
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 hour
+
+package_windows:
+  stage: package
+  tags:
+    - windows
+  dependencies:
+    - build_app
+  script:
+    - npm run electron:build:win
+  artifacts:
+    paths:
+      - release/*.exe
+    expire_in: 30 days
+  only:
+    - main
+    - tags
